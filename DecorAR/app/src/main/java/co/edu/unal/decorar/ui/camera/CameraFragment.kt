@@ -1,4 +1,4 @@
-package co.edu.unal.decorar.ui.dashboard
+package co.edu.unal.decorar.ui.camera
 
 import android.app.Activity
 import android.app.ActivityManager
@@ -13,10 +13,8 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import co.edu.unal.decorar.R
-import co.edu.unal.decorar.ui.home.HomeViewModel
 import com.google.ar.sceneform.AnchorNode
 import com.google.ar.sceneform.FrameTime
 import com.google.ar.sceneform.Scene
@@ -29,9 +27,9 @@ import com.google.ar.sceneform.ux.ArFragment
 import com.google.ar.sceneform.ux.TransformableNode
 import java.util.*
 
-class DashboardFragment : Fragment(), Scene.OnUpdateListener {
+class CameraFragment : Fragment(), Scene.OnUpdateListener {
 
-    private lateinit var dashboardViewModel: DashboardViewModel
+    private lateinit var cameraViewModel: CameraViewModel
 
     private var arFragment: ArFragment? = null
     private var tvDistance: TextView? = null
@@ -52,9 +50,9 @@ class DashboardFragment : Fragment(), Scene.OnUpdateListener {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        dashboardViewModel =
-            ViewModelProviders.of(this).get(DashboardViewModel::class.java)
-        val root = inflater.inflate(R.layout.fragment_dashboard, container, false)
+        cameraViewModel =
+            ViewModelProviders.of(this).get(CameraViewModel::class.java)
+        val root = inflater.inflate(R.layout.fragment_camera, container, false)
         if (!checkIsSupportedDeviceOrFinish(activity as Activity)) {
             Toast.makeText(activity?.applicationContext, "Device not supported", Toast.LENGTH_LONG).show()
         }

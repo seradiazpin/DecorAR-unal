@@ -1,8 +1,7 @@
 <resources>
     <string name="app_name">DecorAR</string>
-    <string name="title_home">Home</string>
-    <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="title_catalog">Catálogo</string>
+    <string name="title_camera">Cámara</string>
     <string name="camera_permission_toast">Camera permission is needed to run this application</string>
     <string name="searching_for_surfaces">Searching for surfaces…</string>
     <string name="ar_device_support">This device does not support AR</string>
