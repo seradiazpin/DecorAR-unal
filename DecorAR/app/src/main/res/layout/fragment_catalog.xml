@@ -1,27 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
-    tools:context=".ui.catalog.CatalogFragment"
-    android:layout_height="match_parent"
-    android:layout_width="match_parent">
-    <androidx.cardview.widget.CardView
-        android:id="@+id/card_view"
-        android:layout_gravity="center"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-        card_view:cardCornerRadius="4dp">
+        android:layout_height="match_parent"
+        android:text="Test"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp" />
 
-        <TextView
-            android:id="@+id/text_catalog"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:textAlignment="center"
-            android:textSize="20sp"
-            android:gravity="center_horizontal" />
-    </androidx.cardview.widget.CardView>
-
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

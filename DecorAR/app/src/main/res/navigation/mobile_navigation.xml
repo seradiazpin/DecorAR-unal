@@ -3,18 +3,27 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@+id/navigation_catalog">
+    app:startDestination="@+id/navigation_catalog_menu">
 
     <fragment
-        android:id="@+id/navigation_catalog"
-        android:name="co.edu.unal.decorar.ui.catalog.CatalogFragment"
+        android:id="@+id/navigation_catalog_menu"
+        android:name="co.edu.unal.decorar.ui.catalog.CatalogMenuFragment"
         android:label="@string/title_catalog"
-        tools:layout="@layout/fragment_catalog" />
+        tools:layout="@layout/fragment_catalog_menu" >
+        <action
+            android:id="@+id/action_navigation_catalog__menu_to_catalogFragment"
+            app:destination="@id/navigation_catalog" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_camera"
         android:name="co.edu.unal.decorar.ui.camera.CameraFragment"
         android:label="@string/title_camera"
         tools:layout="@layout/fragment_camera" />
+    <fragment
+        android:id="@+id/navigation_catalog"
+        android:name="co.edu.unal.decorar.ui.catalog.CatalogFragment"
+        android:label="@string/title_catalog"
+        />
 
 </navigation>

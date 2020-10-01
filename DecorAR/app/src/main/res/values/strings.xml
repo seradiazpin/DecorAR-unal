@@ -5,4 +5,7 @@
     <string name="camera_permission_toast">Camera permission is needed to run this application</string>
     <string name="searching_for_surfaces">Searching for surfaces…</string>
     <string name="ar_device_support">This device does not support AR</string>
+    <string name="paredes">Paredes</string>
+    <string name="pisos">Pisos</string>
+    <string name="muebles">Muebles y Decoración</string>
 </resources>
