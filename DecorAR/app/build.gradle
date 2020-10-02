@@ -31,7 +31,10 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+
 }
+
+
 
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
@@ -59,3 +62,8 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
 }
+apply plugin: 'com.google.ar.sceneform.plugin'
+sceneform.asset('sampledata/models/chair.obj',
+        'default',
+        'sampledata/models/chair.sfa',
+        'src/main/res/raw/model')
