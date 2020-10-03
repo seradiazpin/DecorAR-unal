@@ -2,10 +2,12 @@ package co.edu.unal.decorar.ui.camera
 
 import android.app.Activity
 import android.app.ActivityManager
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,14 +20,16 @@ import co.edu.unal.decorar.R
 import com.google.ar.sceneform.AnchorNode
 import com.google.ar.sceneform.FrameTime
 import com.google.ar.sceneform.Scene
+import com.google.ar.sceneform.math.Quaternion
 import com.google.ar.sceneform.math.Vector3
 import com.google.ar.sceneform.rendering.Material
 import com.google.ar.sceneform.rendering.MaterialFactory
 import com.google.ar.sceneform.rendering.ModelRenderable
-import com.google.ar.sceneform.rendering.ShapeFactory
 import com.google.ar.sceneform.ux.ArFragment
 import com.google.ar.sceneform.ux.TransformableNode
 import java.util.*
+import java.util.function.Consumer
+import java.util.function.Function
 
 class CameraFragment : Fragment(), Scene.OnUpdateListener {
 
@@ -75,6 +79,12 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
 
                 val node = TransformableNode(arFragment!!.transformationSystem)
                 node.renderable = cubeRenderable
+                node.localRotation = Quaternion.axisAngle(Vector3(-1f, 0f, 0f), 90f)
+                val q1: Quaternion = node.localRotation
+                println("-----------------------------------------------------------")
+                println(q1)
+                node.scaleController.maxScale = 0.5f;
+                node.scaleController.minScale = 0.02f;
                 node.setParent(anchorNode)
 
                 arFragment!!.arSceneView.scene.addChild(anchorNode)
@@ -106,7 +116,19 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
         )
             .thenAccept { material ->
                 val vector3 = Vector3(0.05f, 0.05f, 0.05f)
-                cubeRenderable = ShapeFactory.makeCube(vector3, Vector3.zero(), material)
+                ModelRenderable.builder() // To load as an asset from the 'assets' folder ('src/main/assets/andy.sfb'):
+                    .setSource(context, R.raw.model)
+                    .build()
+                    .thenAccept(Consumer { renderable: ModelRenderable ->
+                        cubeRenderable = renderable
+                    })
+                    .exceptionally(
+                        Function<Throwable, Void?> { throwable: Throwable? ->
+                            Log.e(TAG, "Unable to load Renderable.", throwable)
+                            null
+                        }
+                    )
+
                 originalMaterial = material
 
                 cubeRenderable!!.isShadowCaster = false
