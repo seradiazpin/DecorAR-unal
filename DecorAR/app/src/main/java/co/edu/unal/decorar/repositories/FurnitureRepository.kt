@@ -4,7 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import co.edu.unal.decorar.models.Furniture
 
 object FurnitureRepository {
-    private var dataSet : ArrayList<Furniture> = ArrayList()
+    private lateinit var dataSet : ArrayList<Furniture>
 
     fun getFurniture() : MutableLiveData<List<Furniture>>{
         setFurniture()
@@ -14,6 +14,7 @@ object FurnitureRepository {
     }
 
     private fun setFurniture(){
+        dataSet = ArrayList()
         dataSet.add(
             Furniture(
                 "Mueble Prueba1",
