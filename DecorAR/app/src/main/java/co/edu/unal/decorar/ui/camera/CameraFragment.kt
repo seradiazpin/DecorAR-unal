@@ -11,7 +11,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
@@ -20,14 +19,12 @@ import co.edu.unal.decorar.R
 import com.google.ar.sceneform.AnchorNode
 import com.google.ar.sceneform.FrameTime
 import com.google.ar.sceneform.Scene
-import com.google.ar.sceneform.math.Quaternion
 import com.google.ar.sceneform.math.Vector3
-import com.google.ar.sceneform.rendering.Material
-import com.google.ar.sceneform.rendering.MaterialFactory
-import com.google.ar.sceneform.rendering.ModelRenderable
+import com.google.ar.sceneform.rendering.*
 import com.google.ar.sceneform.ux.ArFragment
 import com.google.ar.sceneform.ux.TransformableNode
 import java.util.*
+import java.util.concurrent.CompletableFuture
 import java.util.function.Consumer
 import java.util.function.Function
 
@@ -36,8 +33,7 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
     private lateinit var cameraViewModel: CameraViewModel
 
     private var arFragment: ArFragment? = null
-    private var tvDistance: TextView? = null
-    private var cubeRenderable: ModelRenderable? = null
+    private var renderableObject: ModelRenderable? = null
 
     private var nodeA: TransformableNode? = null
     private var nodeB: TransformableNode? = null
@@ -61,32 +57,36 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
             Toast.makeText(activity?.applicationContext, "Device not supported", Toast.LENGTH_LONG).show()
         }
         arFragment =  childFragmentManager.findFragmentById(R.id.arView) as ArFragment?
-        tvDistance =  root.findViewById(R.id.tvDistance)
 
-        initModel()
-
+        cameraViewModel.elements.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
+            it.get(2)?.let { it1 -> loadModel(it1) }
+        })
+        cameraViewModel.floors.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
+            it.get(2)?.let { it1 -> loadFloor(it1) }
+        })
         arFragment!!.setOnTapArPlaneListener { hitResult, plane, motionEvent ->
-
-            if (cubeRenderable != null) {
+            if (renderableObject != null) {
 
                 val anchor = hitResult.createAnchor()
                 val anchorNode = AnchorNode(anchor)
                 anchorNode.setParent(arFragment!!.arSceneView.scene)
+                val node = TransformableNode(arFragment!!.transformationSystem)
 
+                node.renderable = renderableObject
+                node.setParent(anchorNode)
                 if (nodeA != null && nodeB != null) {
                     clearAnchors()
                 }
-
+                /*
                 val node = TransformableNode(arFragment!!.transformationSystem)
                 node.renderable = cubeRenderable
                 node.localRotation = Quaternion.axisAngle(Vector3(-1f, 0f, 0f), 90f)
                 val q1: Quaternion = node.localRotation
                 println("-----------------------------------------------------------")
                 println(q1)
+                */
                 node.scaleController.maxScale = 0.5f;
                 node.scaleController.minScale = 0.02f;
-                node.setParent(anchorNode)
-
                 arFragment!!.arSceneView.scene.addChild(anchorNode)
                 node.select()
 
@@ -95,17 +95,16 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
                     arFragment!!.arSceneView.scene.addOnUpdateListener(this)
                 } else if (nodeB == null) {
                     nodeB = node
-
+                }else{
+                    nodeA = node
                 }
             }
         }
         return root
     }
 
-
     @RequiresApi(Build.VERSION_CODES.N)
-    private fun initModel() {
-
+    private fun loadModel(id:Int){
         MaterialFactory.makeOpaqueWithColor(context, com.google.ar.sceneform.rendering.Color(Color.GREEN))
             .thenAccept { material ->
                 greenMaterial = material
@@ -117,10 +116,10 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
             .thenAccept { material ->
                 val vector3 = Vector3(0.05f, 0.05f, 0.05f)
                 ModelRenderable.builder() // To load as an asset from the 'assets' folder ('src/main/assets/andy.sfb'):
-                    .setSource(context, R.raw.model)
+                    .setSource(context, id)
                     .build()
                     .thenAccept(Consumer { renderable: ModelRenderable ->
-                        cubeRenderable = renderable
+                        renderableObject = renderable
                     })
                     .exceptionally(
                         Function<Throwable, Void?> { throwable: Throwable? ->
@@ -131,12 +130,11 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
 
                 originalMaterial = material
 
-                cubeRenderable!!.isShadowCaster = false
-                cubeRenderable!!.isShadowReceiver = false
+                renderableObject!!.isShadowCaster = false
+                renderableObject!!.isShadowReceiver = false
 
             }
     }
-
 
     fun checkIsSupportedDeviceOrFinish(activity: Activity): Boolean {
 
@@ -151,6 +149,34 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
         }
         return true
     }
+    @RequiresApi(Build.VERSION_CODES.N)
+    private fun loadFloor(id: Int){
+        // Build texture sampler
+
+        // Build texture sampler
+        val sampler: Texture.Sampler = Texture.Sampler.builder()
+            .setMinFilter(Texture.Sampler.MinFilter.LINEAR)
+            .setMagFilter(Texture.Sampler.MagFilter.LINEAR)
+            .setWrapMode(Texture.Sampler.WrapMode.REPEAT).build()
+
+        // Build texture with sampler
+
+        // Build texture with sampler
+        val trigrid: CompletableFuture<Texture> = Texture.builder()
+            .setSource(context, id)
+            .setSampler(sampler).build()
+
+        // Set plane texture
+
+        // Set plane texture
+        arFragment?.arSceneView?.planeRenderer?.material?.thenAcceptBoth(trigrid)
+        { material, texture ->
+                material.setTexture(
+                    PlaneRenderer.MATERIAL_TEXTURE,
+                    texture
+                )
+        }
+    }
 
     private fun clearAnchors() {
 
@@ -163,41 +189,6 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
 
     override fun onUpdate(frameTime: FrameTime) {
 
-        if (nodeA != null && nodeB != null) {
-
-            var node = arFragment!!.arSceneView.scene.overlapTest(nodeA)
-
-            if (node != null) {
-
-                if (overlapIdle) {
-                    overlapIdle = false
-                    nodeA!!.renderable!!.material = greenMaterial
-                }
-
-            } else {
-
-                if (!overlapIdle) {
-                    overlapIdle = true
-                    nodeA!!.renderable!!.material = originalMaterial
-                }
-            }
-
-            val positionA = nodeA!!.worldPosition
-            val positionB = nodeB!!.worldPosition
-
-            val dx = positionA.x - positionB.x
-            val dy = positionA.y - positionB.y
-            val dz = positionA.z - positionB.z
-
-            //Computing a straight-line distance.
-            val distanceMeters = Math.sqrt((dx * dx + dy * dy + dz * dz).toDouble()).toFloat()
-
-            val distanceFormatted = String.format("%.2f", distanceMeters)
-
-            tvDistance!!.text = "Distance between nodes: $distanceFormatted metres"
-
-
-        }
     }
 
     companion object {

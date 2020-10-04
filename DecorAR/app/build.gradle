@@ -72,4 +72,12 @@ apply plugin: 'com.google.ar.sceneform.plugin'
 sceneform.asset('sampledata/models/chair.obj',
         'default',
         'sampledata/models/chair.sfa',
+        'src/main/res/raw/chair')
+sceneform.asset('sampledata/models/Armoire.obj',
+        'default',
+        'sampledata/models/armoire.sfa',
+        'src/main/res/raw/armoire')
+sceneform.asset('sampledata/models/model.obj',
+        'default',
+        'sampledata/models/model.sfa',
         'src/main/res/raw/model')
