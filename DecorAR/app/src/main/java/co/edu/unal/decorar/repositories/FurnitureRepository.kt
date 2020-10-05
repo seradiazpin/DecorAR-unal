@@ -2,6 +2,7 @@ package co.edu.unal.decorar.repositories
 
 import androidx.lifecycle.MutableLiveData
 import co.edu.unal.decorar.models.Furniture
+import co.edu.unal.decorar.models.Type
 
 object FurnitureRepository {
     private lateinit var dataSet : ArrayList<Furniture>
@@ -29,8 +30,9 @@ object FurnitureRepository {
                 "Un mueble",
                 "Madera",
                 "Ikea",
-                125,
-                listOf<String>("Tienda1","Tienda2")
+                1,
+                listOf<String>("https://www.ikea.com/","Tienda2"),
+                Type.FURNITURE.ordinal
             )
         )
         dataSet.add(
@@ -42,8 +44,9 @@ object FurnitureRepository {
                 "Un mueble",
                 "Madera",
                 "Ikea",
-                125,
-                listOf<String>("Tienda1","Tienda2")
+                2,
+                listOf<String>("https://www.ikea.com/","Tienda2"),
+                Type.FURNITURE.ordinal
             )
         )
         dataSet.add(
@@ -55,73 +58,38 @@ object FurnitureRepository {
                 "Un mueble",
                 "Madera",
                 "Ikea",
-                125,
-                listOf<String>("Tienda1","Tienda2")
+                3,
+                listOf<String>("https://www.ikea.com/","Tienda2"),
+                Type.FURNITURE.ordinal
             )
         )
         dataSet.add(
             Furniture(
                 4,
-                "Mueble Prueba4",
+                "Piso Prueba 1",
                 "https://www.ikea.com/ca/en/images/products/stefan-chair-brown-black__0727320_PE735593_S5.jpg",
                 "1500",
                 "Un mueble",
                 "Madera",
                 "Ikea",
-                125,
-                listOf<String>("Tienda1","Tienda2")
+                1,
+                listOf<String>("https://www.ikea.com/","Tienda2"),
+                Type.FLOOR.ordinal
+
             )
         )
         dataSet.add(
             Furniture(
                 5,
-                "Mueble Prueba1",
+                "Piso Prueba 2",
                 "https://www.ikea.com/ca/en/images/products/stefan-chair-brown-black__0727320_PE735593_S5.jpg",
                 "1500",
                 "Un mueble",
                 "Madera",
                 "Ikea",
-                125,
-                listOf<String>("Tienda1","Tienda2")
-            )
-        )
-        dataSet.add(
-            Furniture(
-                6,
-                "Mueble Prueba1",
-                "https://www.ikea.com/ca/en/images/products/stefan-chair-brown-black__0727320_PE735593_S5.jpg",
-                "1500",
-                "Un mueble",
-                "Madera",
-                "Ikea",
-                125,
-                listOf<String>("Tienda1","Tienda2")
-            )
-        )
-        dataSet.add(
-            Furniture(
-                7,
-                "Mueble Prueba1",
-                "https://www.ikea.com/ca/en/images/products/stefan-chair-brown-black__0727320_PE735593_S5.jpg",
-                "1500",
-                "Un mueble",
-                "Madera",
-                "Ikea",
-                125,
-                listOf<String>("Tienda1","Tienda2")
-            )
-        )
-        dataSet.add(
-            Furniture(
-                8,
-                "Mueble Prueba1",
-                "https://www.ikea.com/ca/en/images/products/stefan-chair-brown-black__0727320_PE735593_S5.jpg",
-                "1500",
-                "Un mueble",
-                "Madera",
-                "Ikea",
-                125,
-                listOf<String>("Tienda1","Tienda2")
+                2,
+                listOf<String>("https://www.ikea.com/","Tienda2"),
+                Type.FLOOR.ordinal
             )
         )
     }

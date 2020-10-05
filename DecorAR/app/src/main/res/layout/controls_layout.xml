@@ -15,7 +15,7 @@
         android:importantForAccessibility="no"
         android:id="@+id/info_button"/>
     <TextView
-        android:id="@+id/rotationHeader"
+        android:id="@+id/titleHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/control_name"

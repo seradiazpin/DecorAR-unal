@@ -9,4 +9,12 @@
     <string name="pisos">Pisos</string>
     <string name="muebles">Muebles y Decoración</string>
     <string name="control_name">Mueble</string>
+    <string name="content_description_media">Title</string>
+    <string name="descripcion">Descripcion</string>
+    <string name="tiitulo">Tiitulo</string>
+    <string name="precio">Precio</string>
+    <string name="material">Material</string>
+    <string name="marca">Marca</string>
+    <string name="donde_comprar">Donde Comprar</string>
+    <string name="colocar">Colocar</string>
 </resources>

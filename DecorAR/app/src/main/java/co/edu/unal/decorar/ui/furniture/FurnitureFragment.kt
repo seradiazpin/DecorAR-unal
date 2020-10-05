@@ -1,20 +1,22 @@
 package co.edu.unal.decorar.ui.furniture
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.navArgs
 import co.edu.unal.decorar.MainViewModel
 import co.edu.unal.decorar.R
 import co.edu.unal.decorar.models.Furniture
 import co.edu.unal.decorar.repositories.FurnitureRepository
-import co.edu.unal.decorar.ui.catalog.CatalogFragmentArgs
+import co.edu.unal.decorar.ui.camera.CameraFragment
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 
@@ -59,6 +61,25 @@ class FurnitureFragment :  Fragment(){
             mainViewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
         } ?: throw Throwable("invalid activity")
         mainViewModel.updateActionBarTitle(furniture.nombre)
+        val buttonFloor: Button = root.findViewById(R.id.colocar)
+        buttonFloor.setOnClickListener{
+            val cameraFragment = CameraFragment()
+            val args = Bundle()
+            furniture.modelo?.let { it1 -> args.putInt("modelo", it1) }
+            furniture.nombre?.let { it1 -> args.putString("nombre", it1) }
+            furniture.tipo?.let { it1 -> args.putInt("tipo", it1) }
+            cameraFragment.arguments = args
+            val fragmentManager = requireActivity().supportFragmentManager
+            val fragmentTransaction = fragmentManager.beginTransaction()
+            fragmentTransaction.replace(R.id.nav_host_fragment, cameraFragment)
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit()
+        }
+        val buttonStore: Button = root.findViewById(R.id.donde_comprar)
+        buttonStore.setOnClickListener{
+            val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(furniture.tiendas?.get(0)))
+            startActivity(browserIntent)
+        }
         return root
     }
 }

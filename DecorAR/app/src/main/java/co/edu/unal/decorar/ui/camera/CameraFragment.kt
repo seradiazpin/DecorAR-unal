@@ -13,6 +13,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
+import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
@@ -63,11 +64,29 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
                 .show()
         }
         nodesList = ArrayList<TransformableNode>()
-        arguments?.getSerializable("item")
+        val id: Int?
+        val Titulo: String
+        val tipo: Int?
+        if(arguments != null) {
+            id= arguments?.getSerializable("modelo") as Int
+            Titulo= arguments?.getSerializable("nombre") as String
+            tipo= arguments?.getSerializable("tipo") as Int
+        }else{
+            id = 1
+            Titulo = "Camara Test"
+            tipo = 1
+        }
         arFragment = childFragmentManager.findFragmentById(R.id.arView) as ArFragment?
-        getModel(2)
-        getTexture(2)
-        setArFragmentListener()
+        if (id != null) {
+            getModel(id)
+        }
+        if(tipo == 2){
+            if (id != null) {
+                getTexture(id)
+            }
+        }
+
+        setArFragmentListener(Titulo)
 
         return root
     }
@@ -124,7 +143,7 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
-    private fun setArFragmentListener() {
+    private fun setArFragmentListener(text:String) {
         arFragment!!.setOnTapArPlaneListener { hitResult, plane, motionEvent ->
 
             if (renderableObject != null) {
@@ -137,7 +156,7 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
                 node.renderable = renderableObject
                 node.setParent(anchorNode)
                 addPlaneFloorToModel(plane, anchorNode)
-                placeObject(arFragment!!, anchorNode)
+                placeObject(arFragment!!, anchorNode, text)
                 if (nodesList?.size!! == 2) {
                     clearAnchors()
                 }
@@ -223,11 +242,13 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
 
 
     @RequiresApi(Build.VERSION_CODES.N)
-    private fun placeObject(fragment: ArFragment, anchor: AnchorNode) {
+    private fun placeObject(fragment: ArFragment, anchor: AnchorNode, title: String) {
         ViewRenderable.builder()
             .setView(fragment.context, R.layout.controls_layout)
             .build()
             .thenAccept {
+                val text = it.view.findViewById<TextView>(R.id.titleHeader)
+                text.text = title
                 it.isShadowCaster = false
                 it.isShadowReceiver = false
                 it.view.findViewById<ImageButton>(R.id.info_button).setOnClickListener {

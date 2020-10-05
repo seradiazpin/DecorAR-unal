@@ -1,5 +1,7 @@
 package co.edu.unal.decorar.models
-
+enum class Type{
+    FURNITURE, WALL,FLOOR
+}
 data class Furniture (
     var id: Int,
     var nombre: String,
@@ -9,7 +11,8 @@ data class Furniture (
     var material: String?,
     var marca: String?,
     var modelo: Int?,
-    var tiendas: List<String>?
+    var tiendas: List<String>?,
+    var tipo: Int?
 ){
 
 }
