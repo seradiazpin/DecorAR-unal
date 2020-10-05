@@ -29,6 +29,7 @@ import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.function.Consumer
 import java.util.function.Function
+import kotlin.collections.ArrayList
 
 class CameraFragment : Fragment(), Scene.OnUpdateListener {
 
@@ -36,17 +37,16 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
 
     private var arFragment: ArFragment? = null
     private var renderableObject: ModelRenderable? = null
+    private var nodesList: ArrayList<TransformableNode>? = null
 
-    private var nodeA: TransformableNode? = null
-    private var nodeB: TransformableNode? = null
-
-    var greenMaterial: Material? = null
     var originalMaterial: Material? = null
     var planeRenderable: ModelRenderable? = null
-    var materialTexture : Texture? = null
-    var overlapIdle = true
+    var materialTexture: Texture? = null
 
 
+    /**
+     * Load camera fragment component's
+     */
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -57,16 +57,71 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
             ViewModelProviders.of(this).get(CameraViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_camera, container, false)
         if (!checkIsSupportedDeviceOrFinish(activity as Activity)) {
-            Toast.makeText(activity?.applicationContext, "Device not supported", Toast.LENGTH_LONG).show()
+            Toast.makeText(activity?.applicationContext, "Device not supported", Toast.LENGTH_LONG)
+                .show()
         }
-        arFragment =  childFragmentManager.findFragmentById(R.id.arView) as ArFragment?
+        nodesList = ArrayList<TransformableNode>()
+        arguments?.getSerializable("item")
+        arFragment = childFragmentManager.findFragmentById(R.id.arView) as ArFragment?
+        getModel(2)
+        getTexture(2)
+        setArFragmentListener()
 
+        return root
+    }
+
+    /**
+     *  Get Model Id from viewModel
+     */
+
+    @RequiresApi(Build.VERSION_CODES.N)
+    private fun getModel(id: Int) {
         cameraViewModel.elements.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
-            it.get(2)?.let { it1 -> loadModel(it1) }
+            it[id]?.let { it1 -> loadModel(it1) }
         })
+    }
+
+    /**
+     *  Get Texture Id from viewModel
+     */
+    @RequiresApi(Build.VERSION_CODES.N)
+    private fun getTexture(id: Int) {
         cameraViewModel.floors.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
-            it.get(2)?.let { it1 -> loadFloor(it1) }
+            it[id]?.let { it1 -> loadFloor(it1) }
         })
+    }
+
+    /**
+     * add plane with floor texture to model
+     */
+    @RequiresApi(Build.VERSION_CODES.N)
+    private fun addPlaneFloorToModel(plane: Plane, anchorNode: AnchorNode) {
+        if (plane.type === Plane.Type.HORIZONTAL_UPWARD_FACING) {
+            Texture.builder()
+                .setSource(context, R.drawable.floortexture2)
+                .build()
+                .thenAccept { texture ->
+                    materialTexture = texture
+                }
+            MaterialFactory.makeOpaqueWithTexture(context, materialTexture).thenAccept { material ->
+                val surfaceMaterial = material.makeCopy()
+                val cubeSize = Vector3(0.5f, 0f, 0.5f)
+                val cubePosition = Vector3(0f, 0f, 0f)
+
+                planeRenderable = ShapeFactory.makeCube(cubeSize, cubePosition, surfaceMaterial)
+            }
+
+            planeRenderable?.material ?: materialTexture
+            planeRenderable?.let {
+                createPlaneNode(
+                    anchorNode,
+                    it, Vector3(0.0f, 0.0f, 0.0f)
+                )
+            }
+        }
+    }
+    @RequiresApi(Build.VERSION_CODES.N)
+    private fun setArFragmentListener(){
         arFragment!!.setOnTapArPlaneListener { hitResult, plane, motionEvent ->
 
             if (renderableObject != null) {
@@ -78,62 +133,32 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
 
                 node.renderable = renderableObject
                 node.setParent(anchorNode)
-                if (nodeA != null && nodeB != null) {
+                addPlaneFloorToModel(plane, anchorNode)
+                if (nodesList?.size!! == 2) {
                     clearAnchors()
                 }
-                if (plane.type === Plane.Type.HORIZONTAL_UPWARD_FACING) {
-                    Texture.builder()
-                        .setSource(context, R.drawable.floortexture2)
-                        .build()
-                        .thenAccept { texture ->
-                            materialTexture = texture
-                        }
-                    MaterialFactory.makeOpaqueWithTexture(context, materialTexture).thenAccept{material ->
-                        val surfaceMaterial = material.makeCopy()
-                        val cubeSize = Vector3(1f, 0f, 1f)
-                        val cubePosition = Vector3(0f, 0f, 0f)
-
-                        planeRenderable = ShapeFactory.makeCube(cubeSize, cubePosition, surfaceMaterial)
-                    }
-
-                    planeRenderable?.material ?:   materialTexture
-                    planeRenderable?.let {
-                        createPlaneNode(anchorNode,
-                            it, Vector3(0.0f, 0.0f, 0.0f))
-                    }
-                }
-                /*
-                val node = TransformableNode(arFragment!!.transformationSystem)
-                node.renderable = cubeRenderable
-                node.localRotation = Quaternion.axisAngle(Vector3(-1f, 0f, 0f), 90f)
-                val q1: Quaternion = node.localRotation
-                println("-----------------------------------------------------------")
-                println(q1)
-                */
                 node.scaleController.maxScale = 0.5f;
                 node.scaleController.minScale = 0.02f;
                 arFragment!!.arSceneView.scene.addChild(anchorNode)
                 node.select()
-
-                if (nodeA == null) {
-                    nodeA = node
+                if (nodesList!!.size < 2) {
+                    nodesList!!.add(node)
                     arFragment!!.arSceneView.scene.addOnUpdateListener(this)
-                } else if (nodeB == null) {
-                    nodeB = node
-                }else{
-                    nodeA = node
                 }
             }
 
 
         }
-        return root
     }
+
+    /**
+     * Create a plane under the 3D Model
+     */
     private fun createPlaneNode(
         anchorNode: AnchorNode,
         renderable: ModelRenderable,
         localPosition: Vector3
-    ) :Node{
+    ): Node {
         val shape = Node()
         shape.setParent(anchorNode)
         shape.renderable = renderable
@@ -142,20 +167,16 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
         return shape
     }
 
-
-
+    /**
+     * Load the 3D model bu id
+     */
     @RequiresApi(Build.VERSION_CODES.N)
-    private fun loadModel(id:Int){
-        MaterialFactory.makeOpaqueWithColor(context, com.google.ar.sceneform.rendering.Color(Color.GREEN))
-            .thenAccept { material ->
-                greenMaterial = material
-            }
-
-        MaterialFactory.makeOpaqueWithColor(context,
+    private fun loadModel(id: Int) {
+        MaterialFactory.makeOpaqueWithColor(
+            context,
             com.google.ar.sceneform.rendering.Color(Color.RED)
         )
             .thenAccept { material ->
-                val vector3 = Vector3(0.05f, 0.05f, 0.05f)
                 ModelRenderable.builder() // To load as an asset from the 'assets' folder ('src/main/assets/andy.sfb'):
                     .setSource(context, id)
                     .build()
@@ -177,11 +198,15 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
             }
     }
 
-    fun checkIsSupportedDeviceOrFinish(activity: Activity): Boolean {
+    /**
+     * Check If the device have OpenGL
+     */
+    private fun checkIsSupportedDeviceOrFinish(activity: Activity): Boolean {
 
-        val openGlVersionString = (Objects.requireNonNull(activity.getSystemService(Context.ACTIVITY_SERVICE)) as ActivityManager)
-            .deviceConfigurationInfo
-            .glEsVersion
+        val openGlVersionString =
+            (Objects.requireNonNull(activity.getSystemService(Context.ACTIVITY_SERVICE)) as ActivityManager)
+                .deviceConfigurationInfo
+                .glEsVersion
         if (java.lang.Double.parseDouble(openGlVersionString) < MIN_OPENGL_VERSION) {
             Toast.makeText(activity, "Sceneform requires OpenGL ES 3.0 or later", Toast.LENGTH_LONG)
                 .show()
@@ -190,10 +215,12 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
         }
         return true
     }
-    @RequiresApi(Build.VERSION_CODES.N)
-    private fun loadFloor(id: Int){
-        // Build texture sampler
 
+    /**
+     * Load Floor Texture by id
+     */
+    @RequiresApi(Build.VERSION_CODES.N)
+    private fun loadFloor(id: Int) {
         // Build texture sampler
         val sampler: Texture.Sampler = Texture.Sampler.builder()
             .setMinFilter(Texture.Sampler.MinFilter.LINEAR)
@@ -201,31 +228,28 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
             .setWrapMode(Texture.Sampler.WrapMode.REPEAT).build()
 
         // Build texture with sampler
-
-        // Build texture with sampler
         val trigrid: CompletableFuture<Texture> = Texture.builder()
             .setSource(context, id)
             .setSampler(sampler).build()
 
         // Set plane texture
-
-        // Set plane texture
         arFragment?.arSceneView?.planeRenderer?.material?.thenAcceptBoth(trigrid)
         { material, texture ->
-                material.setTexture(
-                    PlaneRenderer.MATERIAL_TEXTURE,
-                    texture
-                )
+            material.setTexture(
+                PlaneRenderer.MATERIAL_TEXTURE,
+                texture
+            )
         }
     }
 
+    /**
+     * Clear all anchors on the nodeList
+     */
     private fun clearAnchors() {
-
-        arFragment!!.arSceneView.scene.removeChild(nodeA!!.parent!!)
-        arFragment!!.arSceneView.scene.removeChild(nodeB!!.parent!!)
-
-        nodeA = null
-        nodeB = null
+        for (nodeElement in nodesList!!) {
+            arFragment!!.arSceneView.scene.removeChild(nodeElement!!.parent!!)
+        }
+        nodesList = ArrayList<TransformableNode>()
     }
 
     override fun onUpdate(frameTime: FrameTime) {
