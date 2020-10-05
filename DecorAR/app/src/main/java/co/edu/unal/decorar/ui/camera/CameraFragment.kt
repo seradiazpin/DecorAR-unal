@@ -67,11 +67,11 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
         val id: Int?
         val Titulo: String
         val tipo: Int?
-        if(arguments != null) {
-            id= arguments?.getSerializable("modelo") as Int
-            Titulo= arguments?.getSerializable("nombre") as String
-            tipo= arguments?.getSerializable("tipo") as Int
-        }else{
+        if (arguments != null) {
+            id = arguments?.getSerializable("modelo") as Int
+            Titulo = arguments?.getSerializable("nombre") as String
+            tipo = arguments?.getSerializable("tipo") as Int
+        } else {
             id = 1
             Titulo = "Camara Test"
             tipo = 1
@@ -80,13 +80,16 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
         if (id != null) {
             getModel(id)
         }
-        if(tipo == 2){
+        val floorId : Int?
+        if (tipo == 2) {
             if (id != null) {
                 getTexture(id)
             }
         }
+        cameraViewModel.floors.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
+            it[id]?.let { it1 -> setArFragmentListener(Titulo,it1) }
+        })
 
-        setArFragmentListener(Titulo)
 
         return root
     }
@@ -116,34 +119,39 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
      * add plane with floor texture to model
      */
     @RequiresApi(Build.VERSION_CODES.N)
-    private fun addPlaneFloorToModel(plane: Plane, anchorNode: AnchorNode) {
+    private fun addPlaneFloorToModel(plane: Plane, anchorNode: AnchorNode, floorTexture: Int?) {
         if (plane.type === Plane.Type.HORIZONTAL_UPWARD_FACING) {
-            Texture.builder()
-                .setSource(context, R.drawable.floortexture2)
-                .build()
-                .thenAccept { texture ->
-                    materialTexture = texture
+            if (floorTexture != null) {
+                Texture.builder()
+                    .setSource(context, floorTexture)
+                    .build()
+                    .thenAccept { texture ->
+                        materialTexture = texture
+                    }
+
+                MaterialFactory.makeOpaqueWithTexture(context, materialTexture)
+                    .thenAccept { material ->
+                        val surfaceMaterial = material.makeCopy()
+                        val cubeSize = Vector3(0.5f, 0f, 0.5f)
+                        val cubePosition = Vector3(0f, 0f, 0f)
+
+                        planeRenderable =
+                            ShapeFactory.makeCube(cubeSize, cubePosition, surfaceMaterial)
+                    }
+
+                planeRenderable?.material ?: materialTexture
+                planeRenderable?.let {
+                    createPlaneNode(
+                        anchorNode,
+                        it, Vector3(0.0f, 0.0f, 0.0f)
+                    )
                 }
-            MaterialFactory.makeOpaqueWithTexture(context, materialTexture).thenAccept { material ->
-                val surfaceMaterial = material.makeCopy()
-                val cubeSize = Vector3(0.5f, 0f, 0.5f)
-                val cubePosition = Vector3(0f, 0f, 0f)
-
-                planeRenderable = ShapeFactory.makeCube(cubeSize, cubePosition, surfaceMaterial)
-            }
-
-            planeRenderable?.material ?: materialTexture
-            planeRenderable?.let {
-                createPlaneNode(
-                    anchorNode,
-                    it, Vector3(0.0f, 0.0f, 0.0f)
-                )
             }
         }
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
-    private fun setArFragmentListener(text:String) {
+    private fun setArFragmentListener(text: String, floorTexture: Int?) {
         arFragment!!.setOnTapArPlaneListener { hitResult, plane, motionEvent ->
 
             if (renderableObject != null) {
@@ -155,7 +163,7 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
 
                 node.renderable = renderableObject
                 node.setParent(anchorNode)
-                addPlaneFloorToModel(plane, anchorNode)
+                addPlaneFloorToModel(plane, anchorNode, floorTexture)
                 placeObject(arFragment!!, anchorNode, text)
                 if (nodesList?.size!! == 2) {
                     clearAnchors()
@@ -252,7 +260,7 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
                 it.isShadowCaster = false
                 it.isShadowReceiver = false
                 it.view.findViewById<ImageButton>(R.id.info_button).setOnClickListener {
-                    Toast.makeText(context,"Return to view", Toast.LENGTH_LONG)
+                    Toast.makeText(context, "Return to view", Toast.LENGTH_LONG)
                         .show()
                 }
                 it.view.findViewById<ImageButton>(R.id.delete_button).setOnClickListener {
@@ -270,9 +278,13 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
     }
 
 
-    private fun addControlsToScene(fragment: ArFragment, anchor: AnchorNode, renderable: Renderable) {
+    private fun addControlsToScene(
+        fragment: ArFragment,
+        anchor: AnchorNode,
+        renderable: Renderable
+    ) {
         val node = TransformableNode(fragment.transformationSystem)
-        node.worldPosition = Vector3(0f, 1f, 0f)
+        node.worldPosition = Vector3(0f, 0.5f, 0f)
         node.renderable = renderable
         node.setParent(anchor)
     }
