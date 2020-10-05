@@ -2,6 +2,7 @@ package co.edu.unal.decorar.ui.camera
 
 import android.app.Activity
 import android.app.ActivityManager
+import android.app.AlertDialog
 import android.content.ContentValues.TAG
 import android.content.Context
 import android.graphics.Color
@@ -11,6 +12,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
@@ -120,8 +122,9 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
             }
         }
     }
+
     @RequiresApi(Build.VERSION_CODES.N)
-    private fun setArFragmentListener(){
+    private fun setArFragmentListener() {
         arFragment!!.setOnTapArPlaneListener { hitResult, plane, motionEvent ->
 
             if (renderableObject != null) {
@@ -134,11 +137,13 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
                 node.renderable = renderableObject
                 node.setParent(anchorNode)
                 addPlaneFloorToModel(plane, anchorNode)
+                placeObject(arFragment!!, anchorNode)
                 if (nodesList?.size!! == 2) {
                     clearAnchors()
                 }
                 node.scaleController.maxScale = 0.5f;
                 node.scaleController.minScale = 0.02f;
+
                 arFragment!!.arSceneView.scene.addChild(anchorNode)
                 node.select()
                 if (nodesList!!.size < 2) {
@@ -214,6 +219,40 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
             return false
         }
         return true
+    }
+
+
+    @RequiresApi(Build.VERSION_CODES.N)
+    private fun placeObject(fragment: ArFragment, anchor: AnchorNode) {
+        ViewRenderable.builder()
+            .setView(fragment.context, R.layout.controls_layout)
+            .build()
+            .thenAccept {
+                it.isShadowCaster = false
+                it.isShadowReceiver = false
+                it.view.findViewById<ImageButton>(R.id.info_button).setOnClickListener {
+                    // TODO: do smth here
+                }
+                it.view.findViewById<ImageButton>(R.id.delete_button).setOnClickListener {
+                    // TODO: do smth here
+                }
+                addControlsToScene(fragment, anchor, it)
+            }
+            .exceptionally {
+                val builder = AlertDialog.Builder(context)
+                builder.setMessage(it.message).setTitle("Error")
+                val dialog = builder.create()
+                dialog.show()
+                return@exceptionally null
+            }
+    }
+
+
+    private fun addControlsToScene(fragment: ArFragment, anchor: AnchorNode, renderable: Renderable) {
+        val node = TransformableNode(fragment.transformationSystem)
+        node.worldPosition = Vector3(0f, 1f, 0f)
+        node.renderable = renderable
+        node.setParent(anchor)
     }
 
     /**

@@ -8,4 +8,5 @@
     <string name="paredes">Paredes</string>
     <string name="pisos">Pisos</string>
     <string name="muebles">Muebles y Decoración</string>
+    <string name="control_name">Mueble</string>
 </resources>
