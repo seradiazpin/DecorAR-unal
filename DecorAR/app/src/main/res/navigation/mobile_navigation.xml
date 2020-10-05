@@ -30,6 +30,17 @@
         <argument
             android:name="choosed_type"
             app:argType="string" />
+        <action
+            android:id="@+id/catalog_to_furnitureFragment"
+            app:destination="@id/furnitureFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/furnitureFragment"
+        android:name="co.edu.unal.decorar.ui.furniture.FurnitureFragment"
+        android:label="FurnitureFragment" >
+        <argument
+            android:name="furnitureID"
+            app:argType="integer" />
     </fragment>
 
 </navigation>

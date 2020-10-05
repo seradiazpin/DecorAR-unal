@@ -13,6 +13,10 @@ object FurnitureRepository {
         return data
     }
 
+    fun getSingleFurniture(id: Int) : Furniture{
+        return dataSet[id]
+    }
+
 
     private fun setFurniture(){
         dataSet = ArrayList()
