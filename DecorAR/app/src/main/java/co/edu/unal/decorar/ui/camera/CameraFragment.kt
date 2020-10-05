@@ -231,10 +231,11 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
                 it.isShadowCaster = false
                 it.isShadowReceiver = false
                 it.view.findViewById<ImageButton>(R.id.info_button).setOnClickListener {
-                    // TODO: do smth here
+                    Toast.makeText(context,"Return to view", Toast.LENGTH_LONG)
+                        .show()
                 }
                 it.view.findViewById<ImageButton>(R.id.delete_button).setOnClickListener {
-                    // TODO: do smth here
+                    clearAnchors()
                 }
                 addControlsToScene(fragment, anchor, it)
             }
