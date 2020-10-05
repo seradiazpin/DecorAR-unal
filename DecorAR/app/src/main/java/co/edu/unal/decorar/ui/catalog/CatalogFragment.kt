@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.lifecycle.observe
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
@@ -15,8 +16,9 @@ import co.edu.unal.decorar.R
 import co.edu.unal.decorar.ui.TopSpacingItemDecoration
 import kotlinx.android.synthetic.main.fragment_catalog.*
 
-class CatalogFragment : Fragment(){
-    val args: CatalogFragmentArgs by navArgs()
+
+class CatalogFragment : Fragment(), CatalogRecyclerViewAdapter.OnFurnitureListener{
+    private val args: CatalogFragmentArgs by navArgs()
 
     private lateinit var mainViewModel: MainViewModel
     private lateinit var catalogViewModel: CatalogViewModel
@@ -56,7 +58,12 @@ class CatalogFragment : Fragment(){
         catalog_recycler_view.layoutManager = StaggeredGridLayoutManager(NUM_COLUMNS, LinearLayoutManager.VERTICAL)
         val topSpacingItemDecoration = TopSpacingItemDecoration(30)
         catalog_recycler_view.addItemDecoration(topSpacingItemDecoration)
-        catalogAdapter = CatalogRecyclerViewAdapter()
+        catalogAdapter = CatalogRecyclerViewAdapter(this)
         catalog_recycler_view.adapter = catalogAdapter
+    }
+
+    override fun onFurnitureClick(position: Int) {
+        val action = CatalogFragmentDirections.catalogToFurnitureFragment(position)
+        this.findNavController().navigate(action)
     }
 }

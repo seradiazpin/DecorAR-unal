@@ -13,11 +13,16 @@ object FurnitureRepository {
         return data
     }
 
+    fun getSingleFurniture(id: Int) : Furniture{
+        return dataSet[id]
+    }
+
 
     private fun setFurniture(){
         dataSet = ArrayList()
         dataSet.add(
             Furniture(
+                1,
                 "Mueble Prueba1",
                 "https://www.ikea.com/ca/en/images/products/stefan-chair-brown-black__0727320_PE735593_S5.jpg",
                 "1500",
@@ -30,6 +35,7 @@ object FurnitureRepository {
         )
         dataSet.add(
             Furniture(
+                2,
                 "Mueble Prueba2",
                 "https://www.ikea.com/ca/en/images/products/stefan-chair-brown-black__0727320_PE735593_S5.jpg",
                 "1500",
@@ -42,6 +48,7 @@ object FurnitureRepository {
         )
         dataSet.add(
             Furniture(
+                3,
                 "Mueble Prueba3",
                 "https://www.ikea.com/ca/en/images/products/stefan-chair-brown-black__0727320_PE735593_S5.jpg",
                 "1500",
@@ -54,6 +61,7 @@ object FurnitureRepository {
         )
         dataSet.add(
             Furniture(
+                4,
                 "Mueble Prueba4",
                 "https://www.ikea.com/ca/en/images/products/stefan-chair-brown-black__0727320_PE735593_S5.jpg",
                 "1500",
@@ -66,6 +74,7 @@ object FurnitureRepository {
         )
         dataSet.add(
             Furniture(
+                5,
                 "Mueble Prueba1",
                 "https://www.ikea.com/ca/en/images/products/stefan-chair-brown-black__0727320_PE735593_S5.jpg",
                 "1500",
@@ -78,6 +87,7 @@ object FurnitureRepository {
         )
         dataSet.add(
             Furniture(
+                6,
                 "Mueble Prueba1",
                 "https://www.ikea.com/ca/en/images/products/stefan-chair-brown-black__0727320_PE735593_S5.jpg",
                 "1500",
@@ -90,6 +100,7 @@ object FurnitureRepository {
         )
         dataSet.add(
             Furniture(
+                7,
                 "Mueble Prueba1",
                 "https://www.ikea.com/ca/en/images/products/stefan-chair-brown-black__0727320_PE735593_S5.jpg",
                 "1500",
@@ -102,6 +113,7 @@ object FurnitureRepository {
         )
         dataSet.add(
             Furniture(
+                8,
                 "Mueble Prueba1",
                 "https://www.ikea.com/ca/en/images/products/stefan-chair-brown-black__0727320_PE735593_S5.jpg",
                 "1500",

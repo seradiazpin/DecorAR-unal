@@ -12,12 +12,13 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import kotlinx.android.synthetic.main.layout_furniture_item.view.*
 
-class CatalogRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
+class CatalogRecyclerViewAdapter(private var onFurnitureListener: OnFurnitureListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
     private var items: List<Furniture> = ArrayList()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return FurnitureViewHolder(
-            LayoutInflater.from(parent.context).inflate(R.layout.layout_furniture_item, parent, false)
+            LayoutInflater.from(parent.context).inflate(R.layout.layout_furniture_item, parent, false),
+            onFurnitureListener
         )
     }
 
@@ -38,8 +39,9 @@ class CatalogRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>
     }
 
     class FurnitureViewHolder constructor(
-        itemView: View
-    ): RecyclerView.ViewHolder(itemView){
+        itemView: View,
+        var onFurnitureListener: OnFurnitureListener
+    ): RecyclerView.ViewHolder(itemView), View.OnClickListener{
         val itemImage: ImageView = itemView.catalog_item_image
         val itemName: TextView = itemView.catalog_item_text
 
@@ -54,6 +56,16 @@ class CatalogRecyclerViewAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>
                 .applyDefaultRequestOptions(requestOptions)
                 .load(furniture.foto)
                 .into(itemImage)
+
+            itemView.setOnClickListener(this)
+        }
+
+        override fun onClick(v: View?) {
+            onFurnitureListener.onFurnitureClick(adapterPosition)
         }
     }
+
+     interface OnFurnitureListener{
+             fun onFurnitureClick(position: Int)
+     }
 }

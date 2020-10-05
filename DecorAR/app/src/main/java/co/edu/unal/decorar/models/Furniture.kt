@@ -1,6 +1,7 @@
 package co.edu.unal.decorar.models
 
 data class Furniture (
+    var id: Int,
     var nombre: String,
     var foto: String,
     var precio: String?,
