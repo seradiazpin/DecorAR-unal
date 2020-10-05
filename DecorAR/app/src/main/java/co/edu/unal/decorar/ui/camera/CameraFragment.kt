@@ -16,8 +16,10 @@ import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import co.edu.unal.decorar.R
+import com.google.ar.core.Plane
 import com.google.ar.sceneform.AnchorNode
 import com.google.ar.sceneform.FrameTime
+import com.google.ar.sceneform.Node
 import com.google.ar.sceneform.Scene
 import com.google.ar.sceneform.math.Vector3
 import com.google.ar.sceneform.rendering.*
@@ -40,7 +42,8 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
 
     var greenMaterial: Material? = null
     var originalMaterial: Material? = null
-
+    var planeRenderable: ModelRenderable? = null
+    var materialTexture : Texture? = null
     var overlapIdle = true
 
 
@@ -65,6 +68,7 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
             it.get(2)?.let { it1 -> loadFloor(it1) }
         })
         arFragment!!.setOnTapArPlaneListener { hitResult, plane, motionEvent ->
+
             if (renderableObject != null) {
 
                 val anchor = hitResult.createAnchor()
@@ -76,6 +80,27 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
                 node.setParent(anchorNode)
                 if (nodeA != null && nodeB != null) {
                     clearAnchors()
+                }
+                if (plane.type === Plane.Type.HORIZONTAL_UPWARD_FACING) {
+                    Texture.builder()
+                        .setSource(context, R.drawable.floortexture2)
+                        .build()
+                        .thenAccept { texture ->
+                            materialTexture = texture
+                        }
+                    MaterialFactory.makeOpaqueWithTexture(context, materialTexture).thenAccept{material ->
+                        val surfaceMaterial = material.makeCopy()
+                        val cubeSize = Vector3(1f, 0f, 1f)
+                        val cubePosition = Vector3(0f, 0f, 0f)
+
+                        planeRenderable = ShapeFactory.makeCube(cubeSize, cubePosition, surfaceMaterial)
+                    }
+
+                    planeRenderable?.material ?:   materialTexture
+                    planeRenderable?.let {
+                        createPlaneNode(anchorNode,
+                            it, Vector3(0.0f, 0.0f, 0.0f))
+                    }
                 }
                 /*
                 val node = TransformableNode(arFragment!!.transformationSystem)
@@ -99,9 +124,25 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
                     nodeA = node
                 }
             }
+
+
         }
         return root
     }
+    private fun createPlaneNode(
+        anchorNode: AnchorNode,
+        renderable: ModelRenderable,
+        localPosition: Vector3
+    ) :Node{
+        val shape = Node()
+        shape.setParent(anchorNode)
+        shape.renderable = renderable
+        shape.localPosition = localPosition
+
+        return shape
+    }
+
+
 
     @RequiresApi(Build.VERSION_CODES.N)
     private fun loadModel(id:Int){
