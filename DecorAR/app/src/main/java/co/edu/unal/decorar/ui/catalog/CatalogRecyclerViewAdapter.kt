@@ -44,10 +44,10 @@ class CatalogRecyclerViewAdapter(private var onFurnitureListener: OnFurnitureLis
     ): RecyclerView.ViewHolder(itemView), View.OnClickListener{
         val itemImage: ImageView = itemView.catalog_item_image
         val itemName: TextView = itemView.catalog_item_text
-
+        val itemPrice: TextView = itemView.catalog_item_price
         fun bind(furniture: Furniture){
             itemName.text = furniture.nombre
-
+            itemPrice.text = furniture.precio
             val requestOptions = RequestOptions()
                 .placeholder(R.drawable.ic_launcher_background)
                 .error(R.drawable.ic_launcher_background)
