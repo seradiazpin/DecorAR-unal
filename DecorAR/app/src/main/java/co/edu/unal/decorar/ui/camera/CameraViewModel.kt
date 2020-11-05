@@ -14,6 +14,10 @@ class CameraViewModel : ViewModel() {
     private val _floors = MutableLiveData<Map<Int, Int>>().apply {
         value = mapOf( 1 to R.drawable.floortexture, 2 to R.drawable.floortexture2)
     }
+    private val _walls = MutableLiveData<Map<Int, Int>>().apply {
+        value = mapOf( 1 to R.drawable.wall_texture)
+    }
     val elements: LiveData<Map<Int, Int>> = _elements
     val floors: LiveData<Map<Int, Int>> = _floors
+    val walls: LiveData<Map<Int, Int>> = _walls
 }

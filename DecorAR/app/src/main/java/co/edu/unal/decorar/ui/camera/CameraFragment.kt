@@ -5,7 +5,9 @@ import android.app.ActivityManager
 import android.app.AlertDialog
 import android.content.ContentValues.TAG
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -19,6 +21,12 @@ import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import co.edu.unal.decorar.R
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.target.CustomTarget
+import com.bumptech.glide.request.target.Target.SIZE_ORIGINAL
+import com.bumptech.glide.request.transition.Transition
 import com.google.ar.core.Plane
 import com.google.ar.sceneform.AnchorNode
 import com.google.ar.sceneform.FrameTime
@@ -28,6 +36,9 @@ import com.google.ar.sceneform.math.Vector3
 import com.google.ar.sceneform.rendering.*
 import com.google.ar.sceneform.ux.ArFragment
 import com.google.ar.sceneform.ux.TransformableNode
+import java.io.BufferedOutputStream
+import java.io.File
+import java.io.FileOutputStream
 import java.util.*
 import java.util.concurrent.CompletableFuture
 import java.util.function.Consumer
@@ -77,18 +88,23 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
             tipo = 1
         }
         arFragment = childFragmentManager.findFragmentById(R.id.arView) as ArFragment?
-        if (id != null) {
+        if (tipo == 0) {
             getModel(id)
         }
-        val floorId : Int?
-        if (tipo == 2) {
-            if (id != null) {
-                getTexture(id)
-            }
+        if (tipo == 1) {
+            cameraViewModel.walls.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
+                it[id]?.let { it1 -> addPlaneWallToModel(it1) }
+            })
+
         }
-        cameraViewModel.floors.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
-            it[id]?.let { it1 -> setArFragmentListener(Titulo,it1) }
-        })
+        if (tipo == 2) {
+            cameraViewModel.floors.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
+                it[id]?.let { it1 -> addPlaneFloorToModel(it1) }
+            })
+
+        }
+
+        setArFragmentListener(Titulo)
 
 
         return root
@@ -119,39 +135,78 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
      * add plane with floor texture to model
      */
     @RequiresApi(Build.VERSION_CODES.N)
-    private fun addPlaneFloorToModel(plane: Plane, anchorNode: AnchorNode, floorTexture: Int?) {
-        if (plane.type === Plane.Type.HORIZONTAL_UPWARD_FACING) {
-            if (floorTexture != null) {
-                Texture.builder()
-                    .setSource(context, floorTexture)
-                    .build()
-                    .thenAccept { texture ->
-                        materialTexture = texture
-                    }
+    private fun addPlaneFloorToModel(floorTexture: Int?) {
+        if (floorTexture != null) {
+            val sampler: Texture.Sampler = Texture.Sampler.builder()
+                .setMinFilter(Texture.Sampler.MinFilter.LINEAR)
+                .setMagFilter(Texture.Sampler.MagFilter.LINEAR)
+                .setWrapMode(Texture.Sampler.WrapMode.REPEAT).build()
 
-                MaterialFactory.makeOpaqueWithTexture(context, materialTexture)
-                    .thenAccept { material ->
-                        val surfaceMaterial = material.makeCopy()
-                        val cubeSize = Vector3(0.5f, 0f, 0.5f)
-                        val cubePosition = Vector3(0f, 0f, 0f)
-
-                        planeRenderable =
-                            ShapeFactory.makeCube(cubeSize, cubePosition, surfaceMaterial)
-                    }
-
-                planeRenderable?.material ?: materialTexture
-                planeRenderable?.let {
-                    createPlaneNode(
-                        anchorNode,
-                        it, Vector3(0.0f, 0.0f, 0.0f)
-                    )
+            Texture.builder()
+                .setSampler(sampler)
+                .setSource(context, floorTexture)
+                .build()
+                .thenCompose { texture ->
+                    MaterialFactory.makeOpaqueWithTexture(context, texture)
                 }
-            }
+                .thenAccept { material ->
+                    val cubeSize = Vector3(1f, 0f, 2f)
+                    val cubePosition = Vector3(0f, 0.5f, 0f)
+                    renderableObject =
+                        ShapeFactory.makeCube(cubeSize, cubePosition, material)
+                    renderableObject!!.isShadowCaster = false
+                    renderableObject!!.isShadowReceiver = false
+                }
+
         }
+
+    }
+
+    fun saveFile(bitmap: Bitmap) {
+        val randomFilename = "texture.png"
+        val file = File("resweb", randomFilename)
+        val fos = FileOutputStream(file)
+        val bos = BufferedOutputStream(fos)
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bos)
+        bos.close()
+    }
+
+    /**
+     * add plane with floor texture to model
+     */
+    @RequiresApi(Build.VERSION_CODES.N)
+    private fun addPlaneWallToModel(floorTexture: Int?) {
+        if (floorTexture != null) {
+            val sampler: Texture.Sampler = Texture.Sampler.builder()
+                .setMinFilter(Texture.Sampler.MinFilter.LINEAR)
+                .setMagFilter(Texture.Sampler.MagFilter.LINEAR)
+                .setWrapMode(Texture.Sampler.WrapMode.REPEAT).build()
+
+            Texture.builder()
+                .setSampler(sampler)
+                .setSource(context, floorTexture)
+                .build()
+                .thenCompose { texture ->
+                    MaterialFactory.makeOpaqueWithTexture(context, texture)
+                }
+                .thenAccept { material ->
+                    val cubeSize = Vector3(1f, 2f, 0f)
+                    val cubePosition = Vector3(0f, 1f, 0f)
+                    renderableObject =
+                        ShapeFactory.makeCube(cubeSize, cubePosition, material)
+                    renderableObject!!.isShadowCaster = false
+                    renderableObject!!.isShadowReceiver = false
+
+
+                }
+
+        }
+
+
     }
 
     @RequiresApi(Build.VERSION_CODES.N)
-    private fun setArFragmentListener(text: String, floorTexture: Int?) {
+    private fun setArFragmentListener(text: String) {
         arFragment!!.setOnTapArPlaneListener { hitResult, plane, motionEvent ->
 
             if (renderableObject != null) {
@@ -163,13 +218,12 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
 
                 node.renderable = renderableObject
                 node.setParent(anchorNode)
-                addPlaneFloorToModel(plane, anchorNode, floorTexture)
                 placeObject(arFragment!!, anchorNode, text)
                 if (nodesList?.size!! == 2) {
                     clearAnchors()
                 }
-                node.scaleController.maxScale = 0.5f;
-                node.scaleController.minScale = 0.02f;
+                node.scaleController.maxScale = 0.9f;
+                node.scaleController.minScale = 0.2f;
 
                 arFragment!!.arSceneView.scene.addChild(anchorNode)
                 node.select()
@@ -181,22 +235,6 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
 
 
         }
-    }
-
-    /**
-     * Create a plane under the 3D Model
-     */
-    private fun createPlaneNode(
-        anchorNode: AnchorNode,
-        renderable: ModelRenderable,
-        localPosition: Vector3
-    ): Node {
-        val shape = Node()
-        shape.setParent(anchorNode)
-        shape.renderable = renderable
-        shape.localPosition = localPosition
-
-        return shape
     }
 
     /**
@@ -240,7 +278,11 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
                 .deviceConfigurationInfo
                 .glEsVersion
         if (java.lang.Double.parseDouble(openGlVersionString) < MIN_OPENGL_VERSION) {
-            Toast.makeText(activity, "Sceneform requires OpenGL ES 3.0 or later", Toast.LENGTH_LONG)
+            Toast.makeText(
+                activity,
+                "Sceneform requires OpenGL ES 3.0 or later",
+                Toast.LENGTH_LONG
+            )
                 .show()
             activity.finish()
             return false
@@ -284,7 +326,7 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
         renderable: Renderable
     ) {
         val node = TransformableNode(fragment.transformationSystem)
-        node.worldPosition = Vector3(0f, 0.5f, 0f)
+        node.worldPosition = Vector3(0f, 1f, 0f)
         node.renderable = renderable
         node.setParent(anchor)
     }
