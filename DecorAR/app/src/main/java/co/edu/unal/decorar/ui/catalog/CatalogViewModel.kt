@@ -8,7 +8,6 @@ import co.edu.unal.decorar.repositories.FurnitureRepository
 
 class CatalogViewModel : ViewModel() {
     private var _furniture = FurnitureRepository.getFurniture()
-
     val furniture: LiveData<List<Furniture>> = _furniture
 
 }

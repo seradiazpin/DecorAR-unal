@@ -165,7 +165,7 @@ object FurnitureRepository {
                                 document.data["material"] as String,
                                 document.data["marca"] as String,
                                 (document.data["modelo"] as Long).toInt(),
-                                document.data["tiendas"] as List<String>?,
+                                (document.data["tiendas"] as String).split(','),
                                 (document.data["tipo"] as Long).toInt()
                             )
                         )
