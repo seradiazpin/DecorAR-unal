@@ -12,7 +12,8 @@ data class Furniture (
     var marca: String?,
     var modelo: Int?,
     var tiendas: List<String>?,
-    var tipo: Int?
+    var tipo: Int?,
+    var url: String?
 ){
 
 }

@@ -8,6 +8,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -32,6 +33,7 @@ import com.google.ar.sceneform.AnchorNode
 import com.google.ar.sceneform.FrameTime
 import com.google.ar.sceneform.Node
 import com.google.ar.sceneform.Scene
+import com.google.ar.sceneform.assets.RenderableSource
 import com.google.ar.sceneform.math.Vector3
 import com.google.ar.sceneform.rendering.*
 import com.google.ar.sceneform.ux.ArFragment
@@ -48,7 +50,6 @@ import kotlin.collections.ArrayList
 class CameraFragment : Fragment(), Scene.OnUpdateListener {
 
     private lateinit var cameraViewModel: CameraViewModel
-
     private var arFragment: ArFragment? = null
     private var renderableObject: ModelRenderable? = null
     private var nodesList: ArrayList<TransformableNode>? = null
@@ -78,30 +79,29 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
         val id: Int?
         val Titulo: String
         val tipo: Int?
+        val url: String
         if (arguments != null) {
             id = arguments?.getSerializable("modelo") as Int
             Titulo = arguments?.getSerializable("nombre") as String
             tipo = arguments?.getSerializable("tipo") as Int
+            url = arguments?.getSerializable("url") as String
+
         } else {
             id = 1
             Titulo = "Camara Test"
             tipo = 1
+            url = "https://github.com/yudiz-solutions/runtime_ar_android/raw/master/model/model.gltf"
         }
         arFragment = childFragmentManager.findFragmentById(R.id.arView) as ArFragment?
         if (tipo == 0) {
-            getModel(id)
+            loadModel(url)
         }
         if (tipo == 1) {
-            cameraViewModel.walls.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
-                it[id]?.let { it1 -> addPlaneWallToModel(it1) }
-            })
+             addPlaneWallToModel(url)
 
         }
         if (tipo == 2) {
-            cameraViewModel.floors.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
-                it[id]?.let { it1 -> addPlaneFloorToModel(it1) }
-            })
-
+           addPlaneFloorToModel(url)
         }
 
         setArFragmentListener(Titulo)
@@ -110,33 +110,42 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
         return root
     }
 
-    /**
-     *  Get Model Id from viewModel
-     */
 
-    @RequiresApi(Build.VERSION_CODES.N)
-    private fun getModel(id: Int) {
-        cameraViewModel.elements.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
-            it[id]?.let { it1 -> loadModel(it1) }
-        })
-    }
 
     /**
-     *  Get Texture Id from viewModel
+     * add plane with floor texture to model
      */
     @RequiresApi(Build.VERSION_CODES.N)
-    private fun getTexture(id: Int) {
-        cameraViewModel.floors.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
-            it[id]?.let { it1 -> loadFloor(it1) }
-        })
+    private fun addPlaneFloorToModel(url: String) {
+        val sampler: Texture.Sampler = Texture.Sampler.builder()
+            .setMinFilter(Texture.Sampler.MinFilter.LINEAR)
+            .setMagFilter(Texture.Sampler.MagFilter.LINEAR)
+            .setWrapMode(Texture.Sampler.WrapMode.REPEAT).build()
+
+        Texture.builder()
+            .setSampler(sampler)
+            .setSource(context,  Uri.parse(url))
+            .build()
+            .thenCompose { texture ->
+                MaterialFactory.makeOpaqueWithTexture(context, texture)
+            }
+            .thenAccept { material ->
+                val cubeSize = Vector3(1f, 0f, 1f)
+                val cubePosition = Vector3(0f, 0.5f, 0f)
+                renderableObject =
+                    ShapeFactory.makeCube(cubeSize, cubePosition, material)
+                renderableObject!!.isShadowCaster = false
+                renderableObject!!.isShadowReceiver = false
+            }
+
     }
 
     /**
      * add plane with floor texture to model
      */
     @RequiresApi(Build.VERSION_CODES.N)
-    private fun addPlaneFloorToModel(floorTexture: Int?) {
-        if (floorTexture != null) {
+    private fun addPlaneWallToModel(url: String) {
+        if (url != null) {
             val sampler: Texture.Sampler = Texture.Sampler.builder()
                 .setMinFilter(Texture.Sampler.MinFilter.LINEAR)
                 .setMagFilter(Texture.Sampler.MagFilter.LINEAR)
@@ -144,47 +153,7 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
 
             Texture.builder()
                 .setSampler(sampler)
-                .setSource(context, floorTexture)
-                .build()
-                .thenCompose { texture ->
-                    MaterialFactory.makeOpaqueWithTexture(context, texture)
-                }
-                .thenAccept { material ->
-                    val cubeSize = Vector3(1f, 0f, 2f)
-                    val cubePosition = Vector3(0f, 0.5f, 0f)
-                    renderableObject =
-                        ShapeFactory.makeCube(cubeSize, cubePosition, material)
-                    renderableObject!!.isShadowCaster = false
-                    renderableObject!!.isShadowReceiver = false
-                }
-
-        }
-
-    }
-
-    fun saveFile(bitmap: Bitmap) {
-        val randomFilename = "texture.png"
-        val file = File("resweb", randomFilename)
-        val fos = FileOutputStream(file)
-        val bos = BufferedOutputStream(fos)
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bos)
-        bos.close()
-    }
-
-    /**
-     * add plane with floor texture to model
-     */
-    @RequiresApi(Build.VERSION_CODES.N)
-    private fun addPlaneWallToModel(floorTexture: Int?) {
-        if (floorTexture != null) {
-            val sampler: Texture.Sampler = Texture.Sampler.builder()
-                .setMinFilter(Texture.Sampler.MinFilter.LINEAR)
-                .setMagFilter(Texture.Sampler.MagFilter.LINEAR)
-                .setWrapMode(Texture.Sampler.WrapMode.REPEAT).build()
-
-            Texture.builder()
-                .setSampler(sampler)
-                .setSource(context, floorTexture)
+                .setSource(context,  Uri.parse(url))
                 .build()
                 .thenCompose { texture ->
                     MaterialFactory.makeOpaqueWithTexture(context, texture)
@@ -241,14 +210,18 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
      * Load the 3D model bu id
      */
     @RequiresApi(Build.VERSION_CODES.N)
-    private fun loadModel(id: Int) {
+    private fun loadModel(modelLink: String) {
         MaterialFactory.makeOpaqueWithColor(
             context,
             com.google.ar.sceneform.rendering.Color(Color.RED)
         )
             .thenAccept { material ->
                 ModelRenderable.builder() // To load as an asset from the 'assets' folder ('src/main/assets/andy.sfb'):
-                    .setSource(context, id)
+                    .setSource(context,  RenderableSource.builder().setSource(
+                        context,
+                        Uri.parse(modelLink),
+                        RenderableSource.SourceType.GLTF2).build())
+                    .setRegistryId(modelLink)
                     .build()
                     .thenAccept(Consumer { renderable: ModelRenderable ->
                         renderableObject = renderable
@@ -304,6 +277,7 @@ class CameraFragment : Fragment(), Scene.OnUpdateListener {
                 it.view.findViewById<ImageButton>(R.id.info_button).setOnClickListener {
                     Toast.makeText(context, "Return to view", Toast.LENGTH_LONG)
                         .show()
+
                 }
                 it.view.findViewById<ImageButton>(R.id.delete_button).setOnClickListener {
                     clearAnchors()
