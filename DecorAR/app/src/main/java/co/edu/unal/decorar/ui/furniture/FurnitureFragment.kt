@@ -68,6 +68,7 @@ class FurnitureFragment :  Fragment(){
             furniture.modelo?.let { it1 -> args.putInt("modelo", it1) }
             furniture.nombre?.let { it1 -> args.putString("nombre", it1) }
             furniture.tipo?.let { it1 -> args.putInt("tipo", it1) }
+            furniture.url?.let { it1 -> args.putString("url", it1) }
             cameraFragment.arguments = args
             val fragmentManager = requireActivity().supportFragmentManager
             val fragmentTransaction = fragmentManager.beginTransaction()

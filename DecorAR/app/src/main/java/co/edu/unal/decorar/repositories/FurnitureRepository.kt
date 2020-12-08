@@ -18,6 +18,7 @@ object FurnitureRepository {
         //to populate db
         //populateFb()
         setFurnitureFb()
+        //setFurniture()
         val data: MutableLiveData<List<Furniture>> = MutableLiveData()
         data.value = dataSet
         return data
@@ -44,7 +45,7 @@ object FurnitureRepository {
                     "https://www.amoblando.co/sofa-cama-multifuncional-euro-con-brazos-microfibra?gclid=CjwKCAjwiOv7BRBREiwAXHbv3JGvHRyi0uigmGJMoZU6ZU56m7ZZ03zeWU0V06kMVfkbBFwpd2AIthoCgIcQAvD_BwE#49",
                     "Tienda2"
                 ),
-                Type.FURNITURE.ordinal
+                Type.FURNITURE.ordinal,""
             )
         )
         dataSet.add(
@@ -58,7 +59,7 @@ object FurnitureRepository {
                 "Ikea",
                 2,
                 listOf<String>("https://www.amoblando.co/closet-tera-rta#18?op=60521", "Tienda2"),
-                Type.FURNITURE.ordinal
+                Type.FURNITURE.ordinal,""
             )
         )
         dataSet.add(
@@ -75,7 +76,7 @@ object FurnitureRepository {
                     "https://www.falabella.com.co/falabella-co/product/3524092/Banco-Alto-Naturale/3524096?ef_id=CjwKCAjwiOv7BRBREiwAXHbv3MThE5DcwNapOV1OorNwOF1PVA4C9RizK6VU4F0pmcVF2gma0Op8MxoCMQQQAvD_BwE:G:s&s_kwcid=AL!703!3!386927636577!!!u!949117518238!&kid=shopp991056338&gclid=CjwKCAjwiOv7BRBREiwAXHbv3MThE5DcwNapOV1OorNwOF1PVA4C9RizK6VU4F0pmcVF2gma0Op8MxoCMQQQAvD_BwE",
                     "Tienda2"
                 ),
-                Type.FURNITURE.ordinal
+                Type.FURNITURE.ordinal,""
             )
         )
         dataSet.add(
@@ -89,7 +90,7 @@ object FurnitureRepository {
                 "Alfa",
                 1,
                 listOf<String>("https://www.alfa.com.co/producto/emilia/", "Tienda2"),
-                Type.FLOOR.ordinal
+                Type.FLOOR.ordinal,""
 
             )
         )
@@ -104,7 +105,7 @@ object FurnitureRepository {
                 "Alfa",
                 2,
                 listOf<String>("https://www.alfa.com.co/producto/piso-vigo/", "Tienda2"),
-                Type.FLOOR.ordinal
+                Type.FLOOR.ordinal,""
             )
         )
         dataSet.add(
@@ -118,7 +119,7 @@ object FurnitureRepository {
                 "Alfa",
                 1,
                 listOf<String>("https://www.alfa.com.co/producto/hd-slate/", "Tienda2"),
-                Type.WALL.ordinal
+                Type.WALL.ordinal,""
             )
         )
     }
@@ -166,12 +167,12 @@ object FurnitureRepository {
                                 document.data["marca"] as String,
                                 (document.data["modelo"] as Long).toInt(),
                                 (document.data["tiendas"] as String).split(','),
-                                (document.data["tipo"] as Long).toInt()
+                                (document.data["tipo"] as Long).toInt(),
+                                document.data["url"] as String?
                             )
                         )
 
                     }
-
                 } else {
                     Log.w(TAG, "Error getting documents.", task.exception)
                 }
