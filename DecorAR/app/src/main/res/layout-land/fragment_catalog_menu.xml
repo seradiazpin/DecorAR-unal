@@ -18,13 +18,13 @@
             android:layout_width="match_parent"
             android:background="@color/colorPrimary"
             android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:orientation="horizontal">
 
             <Button
                 android:layout_gravity="center"
                 android:id="@+id/furniture_catalog"
-                android:layout_width="wrap_content"
-                android:layout_height="0dp"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
@@ -44,8 +44,8 @@
             <Button
                 android:layout_gravity="center"
                 android:id="@+id/wall_catalog"
-                android:layout_width="wrap_content"
-                android:layout_height="0dp"
+                android:layout_width="0dp"
+                android:layout_height="200dp"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
@@ -63,8 +63,8 @@
         <Button
             android:layout_gravity="center"
             android:id="@+id/floor_catalog"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
+            android:layout_width="0dp"
+            android:layout_height="200dp"
             android:layout_marginStart="8dp"
             android:layout_marginTop="8dp"
             android:layout_marginEnd="8dp"
