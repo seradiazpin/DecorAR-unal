@@ -29,7 +29,7 @@
         >
         <argument
             android:name="choosed_type"
-            app:argType="string" />
+            app:argType="integer" />
         <action
             android:id="@+id/catalog_to_furnitureFragment"
             app:destination="@id/furnitureFragment" />

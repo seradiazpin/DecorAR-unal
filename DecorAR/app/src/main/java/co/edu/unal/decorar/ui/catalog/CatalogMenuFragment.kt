@@ -28,17 +28,17 @@ class CatalogMenuFragment : Fragment() {
 
         val buttonFurniture: Button = root.findViewById(R.id.furniture_catalog)
         buttonFurniture.setOnClickListener{
-            val action = CatalogMenuFragmentDirections.catalogMenuToCatalogFragment(buttonFurniture.text.toString())
+            val action = CatalogMenuFragmentDirections.catalogMenuToCatalogFragment(0)
             it.findNavController().navigate(action)
         }
         val buttonWall: Button = root.findViewById(R.id.wall_catalog)
         buttonWall.setOnClickListener{
-            val action = CatalogMenuFragmentDirections.catalogMenuToCatalogFragment(buttonWall.text.toString())
+            val action = CatalogMenuFragmentDirections.catalogMenuToCatalogFragment(1)
             it.findNavController().navigate(action)
         }
         val buttonFloor: Button = root.findViewById(R.id.floor_catalog)
         buttonFloor.setOnClickListener{
-            val action = CatalogMenuFragmentDirections.catalogMenuToCatalogFragment(buttonFloor.text.toString())
+            val action = CatalogMenuFragmentDirections.catalogMenuToCatalogFragment(2)
             it.findNavController().navigate(action)
         }
         return root

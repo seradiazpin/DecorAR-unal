@@ -6,8 +6,12 @@ import androidx.lifecycle.ViewModel
 import co.edu.unal.decorar.models.Furniture
 import co.edu.unal.decorar.repositories.FurnitureRepository
 
-class CatalogViewModel : ViewModel() {
-    private var _furniture = FurnitureRepository.getFurniture()
-    val furniture: LiveData<List<Furniture>> = _furniture
+class CatalogViewModel() : ViewModel() {
+    private lateinit var mFurnitures: MutableLiveData<List<Furniture>>
+    val furnitures: LiveData<List<Furniture>>
+        get() = mFurnitures
 
+    fun init(type: Int){
+        mFurnitures = FurnitureRepository.getFurniture(type)
+    }
 }

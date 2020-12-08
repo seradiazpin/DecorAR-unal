@@ -13,7 +13,7 @@ import com.bumptech.glide.request.RequestOptions
 import kotlinx.android.synthetic.main.layout_furniture_item.view.*
 
 class CatalogRecyclerViewAdapter(private var onFurnitureListener: OnFurnitureListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
-    private var items: List<Furniture> = ArrayList()
+    private var items: MutableList<Furniture> = mutableListOf()
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return FurnitureViewHolder(
@@ -35,7 +35,8 @@ class CatalogRecyclerViewAdapter(private var onFurnitureListener: OnFurnitureLis
     }
 
     fun submitList(furnitureList: List<Furniture> ){
-        items = furnitureList
+        items.clear()
+        items.addAll(furnitureList)
     }
 
     class FurnitureViewHolder constructor(

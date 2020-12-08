@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import co.edu.unal.decorar.models.Furniture
 import co.edu.unal.decorar.models.Type
+import co.edu.unal.decorar.ui.catalog.CatalogFragment
 import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.firestore.DocumentReference
@@ -14,10 +15,10 @@ import com.google.firebase.firestore.FirebaseFirestore
 object FurnitureRepository {
     private lateinit var dataSet: ArrayList<Furniture>
 
-    fun getFurniture(): MutableLiveData<List<Furniture>> {
+    fun getFurniture(type: Int): MutableLiveData<List<Furniture>> {
         //to populate db
         //populateFb()
-        setFurnitureFb()
+        setFurnitureFb(type)
         //setFurniture()
         val data: MutableLiveData<List<Furniture>> = MutableLiveData()
         data.value = dataSet
@@ -147,7 +148,7 @@ object FurnitureRepository {
         }
     }
 
-    private fun setFurnitureFb() {
+    private fun setFurnitureFb(type: Int) {
         dataSet = ArrayList()
         val db = FirebaseFirestore.getInstance()
         db.collection("Furniture")
@@ -155,23 +156,24 @@ object FurnitureRepository {
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     for (document in task.result!!) {
-                        Log.d(TAG, document.id + " => " + document.data)
-                        dataSet.add(
-                            Furniture(
-                                (document.data["id"] as Long).toInt(),
-                                document.data["nombre"] as String,
-                                document.data["foto"] as String,
-                                document.data["precio"] as String,
-                                document.data["descripcion"] as String,
-                                document.data["material"] as String,
-                                document.data["marca"] as String,
-                                (document.data["modelo"] as Long).toInt(),
-                                (document.data["tiendas"] as String).split(','),
-                                (document.data["tipo"] as Long).toInt(),
-                                document.data["url"] as String?
+                        //Log.d(TAG, document.id + " => " + document.data)
+                        if((document.data["tipo"] as Long).toInt() == type) {
+                            dataSet.add(
+                                Furniture(
+                                    (document.data["id"] as Long).toInt(),
+                                    document.data["nombre"] as String,
+                                    document.data["foto"] as String,
+                                    document.data["precio"] as String,
+                                    document.data["descripcion"] as String,
+                                    document.data["material"] as String,
+                                    document.data["marca"] as String,
+                                    (document.data["modelo"] as Long).toInt(),
+                                    (document.data["tiendas"] as String).split(','),
+                                    (document.data["tipo"] as Long).toInt(),
+                                    document.data["url"] as String?
+                                )
                             )
-                        )
-
+                        }
                     }
                 } else {
                     Log.w(TAG, "Error getting documents.", task.exception)

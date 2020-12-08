@@ -1,11 +1,16 @@
 package co.edu.unal.decorar.ui.catalog
 
+import android.content.ContentValues
+import android.content.pm.ActivityInfo
 import android.os.Bundle
+import android.os.Handler
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -15,6 +20,9 @@ import co.edu.unal.decorar.MainViewModel
 import co.edu.unal.decorar.R
 import co.edu.unal.decorar.ui.TopSpacingItemDecoration
 import kotlinx.android.synthetic.main.fragment_catalog.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class CatalogFragment : Fragment(), CatalogRecyclerViewAdapter.OnFurnitureListener{
@@ -40,18 +48,23 @@ class CatalogFragment : Fragment(), CatalogRecyclerViewAdapter.OnFurnitureListen
         activity?.run{
             mainViewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
         } ?: throw Throwable("invalid activity")
-        mainViewModel.updateActionBarTitle(args.choosedType)
-        initRecyclerView()
+        mainViewModel.updateActionBarTitle(resources.getStringArray(R.array.types)[args.choosedType])
         catalogViewModel = ViewModelProviders.of(this).get(CatalogViewModel::class.java)
-        catalogViewModel.furniture.observe(viewLifecycleOwner){
+        catalogViewModel.init(args.choosedType)
+        catalogViewModel.furnitures.observe(viewLifecycleOwner){
             catalogAdapter.notifyDataSetChanged()
         }
-        addDataSet()
+        initRecyclerView()
+        Handler().postDelayed({
+            addDataSet() }, 1500)
+
     }
 
     private fun addDataSet(){
-        val data = catalogViewModel.furniture.value!!
+        val data = catalogViewModel.furnitures.value!!
+        Log.d(ContentValues.TAG, data.toString())
         catalogAdapter.submitList(data)
+        catalogAdapter.notifyDataSetChanged()
     }
 
     private fun initRecyclerView(){

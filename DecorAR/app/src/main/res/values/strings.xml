@@ -17,4 +17,9 @@
     <string name="marca">Marca</string>
     <string name="donde_comprar">Donde Comprar</string>
     <string name="colocar">Colocar</string>
+    <string-array name="types">
+        <item>Muebles y Decoración</item>
+        <item>Paredes</item>
+        <item>Pisos</item>
+    </string-array>
 </resources>
