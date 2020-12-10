@@ -1,16 +1,15 @@
 package co.edu.unal.decorar.ui.catalog
 
 import android.content.ContentValues
-import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
-import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -20,9 +19,6 @@ import co.edu.unal.decorar.MainViewModel
 import co.edu.unal.decorar.R
 import co.edu.unal.decorar.ui.TopSpacingItemDecoration
 import kotlinx.android.synthetic.main.fragment_catalog.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 
 class CatalogFragment : Fragment(), CatalogRecyclerViewAdapter.OnFurnitureListener{
@@ -57,6 +53,19 @@ class CatalogFragment : Fragment(), CatalogRecyclerViewAdapter.OnFurnitureListen
         initRecyclerView()
         Handler().postDelayed({
             addDataSet() }, 1500)
+        search_name.setOnQueryTextListener(object :SearchView.OnQueryTextListener{
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                return false
+            }
+
+            override fun onQueryTextChange(newText: String?): Boolean {
+                if(newText != null) {
+                    catalogAdapter.submitList(catalogViewModel.search(newText))
+                    catalogAdapter.notifyDataSetChanged()
+                }
+                return false
+            }
+        })
 
     }
 

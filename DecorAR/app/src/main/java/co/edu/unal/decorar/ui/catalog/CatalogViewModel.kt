@@ -14,4 +14,13 @@ class CatalogViewModel() : ViewModel() {
     fun init(type: Int){
         mFurnitures = FurnitureRepository.getFurniture(type)
     }
+    fun search(s: String): MutableList<Furniture>{
+        val furnituresFiltered = mutableListOf<Furniture>()
+        for( f in mFurnitures.value!!){
+            if(f.nombre.toLowerCase().contains(s.toLowerCase())){
+                furnituresFiltered.add(f)
+            }
+        }
+        return furnituresFiltered
+    }
 }
