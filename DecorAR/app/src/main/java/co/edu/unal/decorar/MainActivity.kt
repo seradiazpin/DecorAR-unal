@@ -31,7 +31,6 @@ class MainActivity : AppCompatActivity() {
         viewModel.title.observe(this){
             supportActionBar?.title = it
         }
-
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
